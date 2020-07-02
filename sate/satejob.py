@@ -38,6 +38,7 @@ from sate.utility import record_timestamp
 from sate.scheduler import jobq
 from sate.filemgr import  TempFS
 from sate import TEMP_SEQ_ALIGNMENT_TAG, TEMP_TREE_TAG, MESSENGER
+from util.transformscore import TransformScore
 
 
 class SateTeam (object):
@@ -300,7 +301,7 @@ class SateJob (TreeHolder):
         for locus_alignment in new_multilocus_dataset:
             self.best_multilocus_dataset.append(copy.copy(locus_alignment))
         self.best_tree_str = new_tree_str
-        self.best_score = new_score
+        self.best_score = new_score #MAN: Initializing best_score which is a max. score
         self.last_improvement_time = curr_timestamp
         self.num_iter_since_imp = 0
         self.best_tree_tmp_filename = self.curr_iter_tree_tmp_filename
@@ -404,6 +405,8 @@ WARNING: you have specified a max subproblem ({0}) that is equal to or greater
                 self.tree_build_job = tbj
                 jobq.put(tbj)
                 new_score, new_tree_str = tbj.get_results()
+                new_score = TransformScore(new_multilocus_dataset, new_score).execute() # MAN: need to transform new_score (ml) to our composite 5 objective score: simg, simng, sp, gap, ml
+
                 self.tree_build_job = None
                 del tbj
                 if self.killed:
@@ -416,7 +419,7 @@ WARNING: you have specified a max subproblem ({0}) that is equal to or greater
                 if self.score is None:
                     self.score = new_score
 
-                if self.best_score is None or new_score > self.best_score:
+                if self.best_score is None or new_score > self.best_score: #MAN: maximization
                     self.store_optimum_results(new_multilocus_dataset,
                             new_tree_str,
                             new_score,

@@ -31,17 +31,18 @@ import optparse
 import sate
 
 from sate import PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_LONG_DESCRIPTION, get_logger, set_timing_log_filepath, TIMING_LOG, MESSENGER
-from sate.alignment import Alignment, SequenceDataset, MultiLocusDataset
-from sate.configure import get_configuration, get_input_source_directory
-from sate.tools import *
-from sate.satejob import *
-from sate.treeholder import read_and_encode_splits
-from sate.scheduler import start_worker, jobq
-from sate.utility import IndentedHelpFormatterWithNL
-from sate.filemgr import open_with_intermediates
+from alignment import Alignment, SequenceDataset, MultiLocusDataset
+from configure import get_configuration, get_input_source_directory
+from tools import *
+from satejob import *
+from treeholder import read_and_encode_splits
+from scheduler import start_worker, jobq
+from utility import IndentedHelpFormatterWithNL
+from filemgr import open_with_intermediates
+from satejob import SateTeam
 from sate import filemgr
 from sate import TEMP_SEQ_ALIGNMENT_TAG, TEMP_TREE_TAG
-
+from util.transformscore import TransformScore
 
 _RunningJobs = None
 
@@ -294,6 +295,7 @@ def finish_sate_execution(sate_team,
             _RunningJobs = job
             jobq.put(job)
             score, starting_tree_str = job.get_results()
+            score = TransformScore(multilocus_dataset, score).execute() # MAN: need to transform score (ml) to our composite 5 objective score: simg, simng, sp, gap, ml
             _RunningJobs = None
             alignment_as_tmp_filename_to_report = sate_products.get_abs_path_for_iter_output("initialsearch", TEMP_SEQ_ALIGNMENT_TAG, allow_existing=True)
             tree_as_tmp_filename_to_report = sate_products.get_abs_path_for_iter_output("initialsearch", TEMP_TREE_TAG, allow_existing=True)
@@ -312,7 +314,7 @@ def finish_sate_execution(sate_team,
                         sate_team=sate_team,
                         name=options.job,
                         status_messages=MESSENGER.send_info,
-                        score=score,
+                        score=score, # MAN: to init best_score
                         **sate_config_dict)
         job.tree_str = starting_tree_str
         job.curr_iter_align_tmp_filename = alignment_as_tmp_filename_to_report
