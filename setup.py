@@ -39,7 +39,7 @@ param = {
     'package_dir': {'sate': 'sate'},
     'test_suite': "sate.test",
     'include_package_data': True,
-    'install_requires': ['dendropy>=3.2.0'],
+    'install_requires': [], #'dendropy>=3.2.0'
     'zip_safe': True,
     'keywords': 'Phylogenetics Evolution Biology',
     'long_description': """A Python implementation of the Simultaneous Alignment and Tree estimation algorithm of Liu, et al. 2009. The package requires configuration to refer to third-party tools such as ClustalW2, MAFFT, MUSCLE, OPAL, Prank, and RAxML""",
