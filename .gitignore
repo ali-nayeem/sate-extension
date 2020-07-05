@@ -8,3 +8,4 @@ sate/test/runSateTest*
 DendroPy/
 data/
 dendropy/test/
+.vscode/
