@@ -147,6 +147,7 @@ class SateJob (TreeHolder):
 
         self._reset_current_run_settings()
         self.killed = False
+        self.man_weights = kwargs.get('man_weights')
 
     def _reset_current_run_settings(self):
         self.start_time = None
@@ -405,7 +406,7 @@ WARNING: you have specified a max subproblem ({0}) that is equal to or greater
                 self.tree_build_job = tbj
                 jobq.put(tbj)
                 new_score, new_tree_str = tbj.get_results()
-                new_score = TransformScore(new_multilocus_dataset, new_score).execute() # MAN: need to transform new_score (ml) to our composite 5 objective score: simg, simng, sp, gap, ml
+                new_score = TransformScore(new_multilocus_dataset, new_score, self.man_weights).execute() # MAN: need to transform new_score (ml) to our composite 5 objective score: simg, simng, sp, gap, ml
 
                 self.tree_build_job = None
                 del tbj

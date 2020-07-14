@@ -1,3 +1,4 @@
+import math
 
 blosum62 = {
     ('W', 'F'): 1, ('L', 'R'): -2, ('S', 'P'): -1, ('V', 'T'): 0,
@@ -74,9 +75,10 @@ blosum62 = {
 g = -4
 
 class TransformScore:
-    def __init__(self, msa, ml_score):
+    def __init__(self, msa, ml_score, man_weights_dic): #w_simg, w_simng, w_sp, w_gap, w_ml
         self.msa = msa
         self.ml_score = ml_score
+        self.man_weights = man_weights_dic
 
     def CalculateSimgSimng(self):
         taxa_to_seq = self.msa[0]
@@ -149,14 +151,14 @@ class TransformScore:
     def NormalizeScore(self, scores):
         int_scores = [ int(x) for x in scores ]
         max_value = max(int_scores)
-        digit_count = len(str(max_value))
+        digit_count = int(math.log10(max_value))+1 #len(str(max_value))
         base = pow(10,digit_count)
 
         scores = [x + base for x in scores]
         scores = [x / (1.0 + abs(x)) for x in scores] #softsign
         return scores
 
-    def AggregatorFunction(self, scores, weights, funcType):
+    def AggregatorFunction(self, scores, weights, funcType=0):
         if funcType == 0 :
             return sum(map(lambda x, y: x*y, scores, weights))
         else:
@@ -165,7 +167,7 @@ class TransformScore:
 
 
     def execute(self):
-        transformed_score = self.ml_score
+        return self.ml_score
 
         #calculate simg and simng using a method
         #calculate gap => min.
@@ -176,14 +178,18 @@ class TransformScore:
         simg, simng = self.CalculateSimgSimng()
         gap = 1.0 / self.CalculateGapScore()
         sp = self.CalculateSpScore()
-        ml = self.ml_score
+        ml = 1.0 / (-1.0 * self.ml_score) #ml is max but always negative, so we convert is into max:positive
 
-        scores =[]
-        scores.extend((simg,simng,gap,sp,ml))
+        scores =[simg, simng, gap, sp, ml]
+        #scores.extend((simg,simng,gap,sp,ml))
         scores = self.NormalizeScore(scores)
 
-        weights = [0.2, 0.2, 0.2, 0.2, 0.2] #need to get it from cmd input later
+        weights = [self.man_weights['w_simg'], self.man_weights['w_simng'], self.man_weights['w_sp'], self.man_weights['w_gap'], self.man_weights['w_ml']]#[0.2, 0.2, 0.2, 0.2, 0.2] #need to get it from cmd input later
 
-        transformed_score = self.AggregatorFunction(scores,weights,1)
+        if self.man_weights['w_ml'] == -1: #if we want to ignore ml score
+            del scores[-1]
+            del weights[-1]
+
+        transformed_score = self.AggregatorFunction(scores, weights)
 
         return transformed_score
