@@ -167,7 +167,7 @@ class TransformScore:
 
 
     def execute(self):
-        return self.ml_score
+        #return self.ml_score
 
         #calculate simg and simng using a method
         #calculate gap => min.
@@ -180,7 +180,7 @@ class TransformScore:
         sp = self.CalculateSpScore()
         ml = 1.0 / (-1.0 * self.ml_score) #ml is max but always negative, so we convert is into max:positive
 
-        scores =[simg, simng, gap, sp, ml]
+        scores = [simg, simng, sp, gap, ml]
         #scores.extend((simg,simng,gap,sp,ml))
         scores = self.NormalizeScore(scores)
 

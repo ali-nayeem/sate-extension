@@ -295,7 +295,7 @@ def finish_sate_execution(sate_team,
             _RunningJobs = job
             jobq.put(job)
             score, starting_tree_str = job.get_results()
-            man_weights = {'w_simg':options.w_simg, 'w_simng':options.w_simng, 'w_sp':options.w_sp, 'w_gap':options.w_gap, 'w_ml':options.w_ml}
+            man_weights = {'w_simg': options.w_simg, 'w_simng': options.w_simng, 'w_sp': options.w_sp, 'w_gap': options.w_gap, 'w_ml': options.w_ml}
             #w1 = options.w_simg
             score = TransformScore(multilocus_dataset, score, man_weights).execute()  #w_simg=options.w_simg, w_simng=options.w_simng, w_sp=options.w_sp, w_gap=options.w_gap, w_ml=options.w_ml).execute() # MAN: need to transform score (ml) to our composite 5 objective score: simg, simng, sp, gap, ml
             _RunningJobs = None
