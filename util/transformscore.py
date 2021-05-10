@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 blosum62 = {
     ('W', 'F'): 1, ('L', 'R'): -2, ('S', 'P'): -1, ('V', 'T'): 0,
@@ -180,16 +181,19 @@ class TransformScore:
         sp = self.CalculateSpScore()
         ml = 1.0 / (-1.0 * self.ml_score) #ml is max but always negative, so we convert is into max:positive
 
-        scores = [simg, simng, sp, gap, ml]
-        #scores.extend((simg,simng,gap,sp,ml))
-        scores = self.NormalizeScore(scores)
+        # scores = [simg, simng, sp, gap, ml]
+        # #scores.extend((simg,simng,gap,sp,ml))
+        # scores = self.NormalizeScore(scores)
+        #
+        # weights = [self.man_weights['w_simg'], self.man_weights['w_simng'], self.man_weights['w_sp'], self.man_weights['w_gap'], self.man_weights['w_ml']]#[0.2, 0.2, 0.2, 0.2, 0.2] #need to get it from cmd input later
+        #
+        # if self.man_weights['w_ml'] == -1: #if we want to ignore ml score
+        #     del scores[-1]
+        #     del weights[-1]
+        #
+        # transformed_score = self.AggregatorFunction(scores, weights)
+        #
+        # return transformed_score
 
-        weights = [self.man_weights['w_simg'], self.man_weights['w_simng'], self.man_weights['w_sp'], self.man_weights['w_gap'], self.man_weights['w_ml']]#[0.2, 0.2, 0.2, 0.2, 0.2] #need to get it from cmd input later
-
-        if self.man_weights['w_ml'] == -1: #if we want to ignore ml score
-            del scores[-1]
-            del weights[-1]
-
-        transformed_score = self.AggregatorFunction(scores, weights)
-
-        return transformed_score
+        max_scores = [simg, simng, sp, gap, self.ml_score]
+        return np.array(max_scores)

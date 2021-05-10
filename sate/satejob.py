@@ -39,7 +39,7 @@ from sate.scheduler import jobq
 from sate.filemgr import  TempFS
 from sate import TEMP_SEQ_ALIGNMENT_TAG, TEMP_TREE_TAG, MESSENGER
 from util.transformscore import TransformScore
-
+import numpy as np
 
 class SateTeam (object):
     '''A blob for holding the appropriate merger, alignment, and tree_estimator tools
@@ -275,7 +275,7 @@ class SateJob (TreeHolder):
         if self.is_stuck_in_blind:
             return AcceptMode.BLIND_MODE
         #if self.move_to_blind_on_worse_score and ( (new_score <= self.score) or self.score is None ):
-        if self.move_to_blind_on_worse_score and (new_score <= self.score):
+        if self.move_to_blind_on_worse_score and (np.count_nonzero(new_score <= self.score) > 2):
             self._blindmode_trigger = 'move_to_blind_on_worse_score'
             return AcceptMode.BLIND_MODE
         if (self.blind_after_total_iter >= 0) and (self.current_iteration >= self.blind_after_total_iter):
@@ -420,7 +420,7 @@ WARNING: you have specified a max subproblem ({0}) that is equal to or greater
                 if self.score is None:
                     self.score = new_score
 
-                if self.best_score is None or new_score > self.best_score: #MAN: maximization
+                if self.best_score is None or np.count_nonzero(new_score > self.best_score) > 2: #MAN: maximization, prev if self.best_score is None or new_score > self.best_score:
                     self.store_optimum_results(new_multilocus_dataset,
                             new_tree_str,
                             new_score,
